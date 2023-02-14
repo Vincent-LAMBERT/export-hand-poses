@@ -172,74 +172,6 @@ def compute_accepted_combinations(multi_link_combo, simple_link_combo) :
 
 ######################################################################################################################
 
-class CustomNamedTemporaryFile: 
-    """
-    MODIFIED FROM : https://stackoverflow.com/questions/23212435/permission-denied-to-write-to-my-temporary-file
-    This custom implementation is needed because of the following limitation of tempfile.NamedTemporaryFile:
-
-    > Whether the name can be used to open the file a second time, while the named temporary file is still open,
-    > varies across platforms (it can be so used on Unix; it cannot on Windows NT or later).
-    """
-    def __init__(self, mode='wb', suffix="", delete=True):
-        self._mode = mode
-        self._delete = delete
-        self.suffix = suffix
-
-    def __enter__(self):
-        # Generate a random temporary file name
-        file_name = os.path.join(tempfile.gettempdir(), os.urandom(24).hex())+self.suffix
-        # Ensure the file is created
-        open(file_name, "x").close()
-        # Open the file in the given mode
-        self._tempFile = open(file_name, self._mode)
-        return self._tempFile
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self._tempFile.close()
-        if self._delete:
-            os.remove(self._tempFile.name)
-
-class ExportSpec(object):
-    """A description of how to export a layer."""
-
-    ATTR_ID = "export-hand-poses"
-
-    def __init__(self, spec: str, layer: object, finger: str, status: str):
-        self.layer = layer
-        self.spec = spec
-        self.finger = finger
-        self.status = status
-
-    @staticmethod
-    def create_specs(layer) -> list:
-        """Extracts '[finger],[status]' pairs from the layer's ATTR_ID attribute and returns them as a 
-           list of ExportSpec. A RuntimeError is raised if any are incorrectly formatted. 
-        """
-        result = list()
-        if ExportSpec.ATTR_ID not in layer.source.attrib:
-            return result
-        
-        spec = layer.source.attrib[ExportSpec.ATTR_ID]
-        for finger_selector in spec.split(";"):
-            gs_split = finger_selector.split(",")
-            if len(gs_split) != 2:
-                raise RuntimeError(f"layer '{layer.label}'(#{layer.id}) has an invalid form '{gs_split}'. " +
-                                   f"Expected format is '[finger],[status]'")
-
-            finger = gs_split[0]
-            status = gs_split[1]
-            if finger not in FINGERS:
-                raise RuntimeError(f"layer '{layer.label}'(#{layer.id}) has an invalid finger '{finger}'. " +
-                                   f"Only the following are valid: {str(FINGERS)}")
-            if status not in STATUS:
-                raise RuntimeError(f"layer '{layer.label}'(#{layer.id}) has an invalid status '{status}'. " +
-                                   f"Only the following are valid: {str(STATUS)}")
-
-            result.append(ExportSpec(spec, layer, finger, status))
-
-        return result
-
-
 class LayerRef(object):
     """A wrapper around an Inkscape XML layer object plus some helper data for doing combination exports."""
 
@@ -265,17 +197,6 @@ class LayerRef(object):
     def has_valid_export_spec(self):
         return len(self.export_specs) > 0
 
-    def copy_with_hidden(self, is_hidden: bool, hide_siblings: bool = False):
-        result = LayerRef(self.source)
-        result.request_hidden_state = True
-        result.requested_hidden = is_hidden
-        result.requested_hide_siblings = hide_siblings
-        if self.parent is not None:
-            for layer in self.parent.children:
-                if layer.id != result.id:
-                    result.sibling_ids.append(layer.id)
-        return result
-
 class ComboExport(inkex.Effect):
     """The core logic of exporting combinations of layers as images."""
 
@@ -298,7 +219,7 @@ class ComboExport(inkex.Effect):
         self.arg_parser.add_argument("--dry", type=inkex.Boolean, dest="dry", default=False, help="Don't actually do all of the exports")
 
     def get_exported_layers(self, logit) :
-        layers = self.get_layers(logit)
+        layers = self.get_layers()
         exported_layers=dict()
         # Figure out the groups of permutations.
         for layer in layers:
@@ -408,11 +329,8 @@ class ComboExport(inkex.Effect):
                     layer_dest_png_path = os.path.join(output_path, f"{label}.png")
                     logit(f"Writing PNG to final location {layer_dest_png_path}")
                     self.export_to_png(layer_dest_svg_path, layer_dest_png_path)
-            
-        
-
-        
-    def get_layers(self, logit) -> list:
+                    
+    def get_layers(self) -> list:
         svg_layers = self.document.xpath('//svg:g[@inkscape:groupmode="layer"]', namespaces=inkex.NSS)
         layers = []
 
@@ -476,6 +394,77 @@ class ComboExport(inkex.Effect):
         logit(f"stderr:\n{err}")
 
 #######################################################################################################################
+
+class CustomNamedTemporaryFile: 
+    """
+    MODIFIED FROM : https://stackoverflow.com/questions/23212435/permission-denied-to-write-to-my-temporary-file
+    This custom implementation is needed because of the following limitation of tempfile.NamedTemporaryFile:
+
+    > Whether the name can be used to open the file a second time, while the named temporary file is still open,
+    > varies across platforms (it can be so used on Unix; it cannot on Windows NT or later).
+    """
+    def __init__(self, mode='wb', suffix="", delete=True):
+        self._mode = mode
+        self._delete = delete
+        self.suffix = suffix
+
+    def __enter__(self):
+        # Generate a random temporary file name
+        file_name = os.path.join(tempfile.gettempdir(), os.urandom(24).hex())+self.suffix
+        # Ensure the file is created
+        open(file_name, "x").close()
+        # Open the file in the given mode
+        self._tempFile = open(file_name, self._mode)
+        return self._tempFile
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self._tempFile.close()
+        if self._delete:
+            os.remove(self._tempFile.name)
+
+######################################################################################################################
+
+class ExportSpec(object):
+    """A description of how to export a layer."""
+
+    ATTR_ID = "export-hand-poses"
+
+    def __init__(self, spec: str, layer: object, finger: str, status: str):
+        self.layer = layer
+        self.spec = spec
+        self.finger = finger
+        self.status = status
+
+    @staticmethod
+    def create_specs(layer) -> list:
+        """Extracts '[finger],[status]' pairs from the layer's ATTR_ID attribute and returns them as a 
+           list of ExportSpec. A RuntimeError is raised if any are incorrectly formatted. 
+        """
+        result = list()
+        if ExportSpec.ATTR_ID not in layer.source.attrib:
+            return result
+        
+        spec = layer.source.attrib[ExportSpec.ATTR_ID]
+        for finger_selector in spec.split(";"):
+            gs_split = finger_selector.split(",")
+            if len(gs_split) != 2:
+                raise RuntimeError(f"layer '{layer.label}'(#{layer.id}) has an invalid form '{gs_split}'. " +
+                                   f"Expected format is '[finger],[status]'")
+
+            finger = gs_split[0]
+            status = gs_split[1]
+            if finger not in FINGERS:
+                raise RuntimeError(f"layer '{layer.label}'(#{layer.id}) has an invalid finger '{finger}'. " +
+                                   f"Only the following are valid: {str(FINGERS)}")
+            if status not in STATUS:
+                raise RuntimeError(f"layer '{layer.label}'(#{layer.id}) has an invalid status '{status}'. " +
+                                   f"Only the following are valid: {str(STATUS)}")
+
+            result.append(ExportSpec(spec, layer, finger, status))
+
+        return result
+
+######################################################################################################################
 
 def _main():
     effect = ComboExport()
