@@ -1,3 +1,5 @@
+<img width="600" alt="Teaser" src="./teaser.png">
+
 # Inkscape Plugin: Export Hand Poses
 Inkscape v1.2.0+ plugin to export the hand poses corresponding to your SVG layers.
 This plugin was developed using Nikolai Shkurkin's plugin export-layers-combo (https://github.com/nshkurkin/inkscape-export-layer-combos) as a base. 
