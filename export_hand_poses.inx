@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
     <_name>Export Hand Poses</_name>
-    <id>com.ftlgoats.combo.layers</id>
+    <id>com.lambevin.hand.poses</id>
     <dependency type="executable" location="extensions">export_hand_poses.py</dependency>
-	<param name="help" type="description">Export combinations of layers to an image in bulk. The tool looks for the 'export-layer-combo' attribute on your layers and then parses them to do combination exports with them. The format of the value for this attribute is '[group],[selector]', where '[selector]' can be one of 'combo-children', 'visible', or 'hidden'. You can also chain multiple '[group],[selector]' values by separating them with a semicolon.</param>
+	<param name="help" type="description">Export various hand poses. The tool looks for the 'export-hand-poses' attribute on your layers and then parses them to do combination exports with them. The format of the value for this attribute is '[finger],[status]', where '[status]' can be one of 'up', 'down', 'add-link', 'abd-link', or 'multi-link'.</param>
     <param name="path" type="string" _gui-text="Choose path to export">~/</param>
     <param name="filetype" type="optiongroup" gui-text="Export layers as..." appearance="minimal">
        <option value="jpeg">JPEG</option>
