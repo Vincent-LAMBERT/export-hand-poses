@@ -6,7 +6,7 @@ This plugin was developed using Nikolai Shkurkin's plugin export-layers-combo (h
 
 ## Installation
 
-Download `export-hand-poses.inx` and `export-hand-poses.py`, then copy them to the Inkscape installation folder subdirectory `share\inkscape\extensions`.
+Download `export_hand_poses.inx` and `export_hand_poses.py`, then copy them to the Inkscape installation folder subdirectory `share\inkscape\extensions`.
 
 - On Windows this may be `C:\Program Files\Inkscape\share\inkscape\extensions` (or `%appdata%\inkscape\extensions` if you don't want to install globally)
 - On Ubuntu, this may be `/usr/share/inkscape/extensions/` or (`~/.config/inkscape/extensions` if you don't want to install globally)
