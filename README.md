@@ -4,6 +4,18 @@
 Inkscape v1.2.0+ plugin to export the hand poses corresponding to your SVG layers.
 This plugin was developed using Nikolai Shkurkin's plugin export-layers-combo (https://github.com/nshkurkin/inkscape-export-layer-combos) as a base. 
 
+## Installation
+
+Download `export-hand-poses.inx` and `export-hand-poses.py`, then copy them to the Inkscape installation folder subdirectory `share\inkscape\extensions`.
+
+- On Windows this may be `C:\Program Files\Inkscape\share\inkscape\extensions` (or `%appdata%\inkscape\extensions` if you don't want to install globally)
+- On Ubuntu, this may be `/usr/share/inkscape/extensions/` or (`~/.config/inkscape/extensions` if you don't want to install globally)
+- On macOS, this may be `~/Library/Application Support/org.inkscape.Inkscape/config/inkscape/extensions`
+
+- Generally, you should be able to go to the Inkscape `Preferences`, select `System`, and see the path for `User extensions`
+
+If the downloaded files have `.txt` suffixes added by GitHub, be sure to remove them. Restart Inkscape if it's running.
+
 ## How it works
 
 Open the `Layers` and `XML Editor` tabs. In the `XML Editor` select layer objects and add the attribute `export-hand-poses` to them and given them a value of the form `[finger],[status]`. 
