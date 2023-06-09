@@ -290,6 +290,11 @@ class ComboExport(inkex.Effect):
             
         # Actually do the export into the destination path.
         output_path = os.path.expanduser(self.options.path)
+        # Remove trailing slash for unix and windows
+        if os.name == "nt":
+            output_path = output_path.rstrip("\\")
+        else :
+            output_path = output_path.rstrip("/")
         if not os.path.exists(os.path.join(output_path)):
             logit(f"Creating directory path {output_path} because it does not exist")
             os.makedirs(os.path.join(output_path))
@@ -362,16 +367,16 @@ class ComboExport(inkex.Effect):
 
             if id in show:
                 layer.attrib['style'] = 'display:inline'
-                logit(f" ... showing layer '{label}'")
+                # logit(f" ... showing layer '{label}'")
             if id in hide:
                 layer.attrib['style'] = 'display:none'
-                logit(f" ... hiding layer '{label}'")
+                # logit(f" ... hiding layer '{label}'")
         doc.write(dest)
 
     def export_to_png(self, svg_path: str, output_path: str):
         logit = logging.warning if self.options.debug else logging.info
         command = f"inkscape --export-type=\"png\" -d {self.options.dpi} --export-filename=\"{output_path}\" \"{svg_path}\""
-        logit(f"Running command '{command}'")
+        # logit(f"Running command '{command}'")
        
         if os.name == "nt":
             p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -385,7 +390,7 @@ class ComboExport(inkex.Effect):
     def convert_png_to_jpeg(self, png_path: str, output_path: str):
         logit = logging.warning if self.options.debug else logging.info
         command = f"convert \"{png_path}\" \"{output_path}\""
-        logit(f"Running command '{command}'")
+        # logit(f"Running command '{command}'")
 
         p = subprocess.Popen(command.encode("utf-8"), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         p.wait()
