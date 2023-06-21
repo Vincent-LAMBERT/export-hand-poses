@@ -175,7 +175,7 @@ def compute_accepted_combinations(multi_link_combo, simple_link_combo) :
 class LayerRef(object):
     """A wrapper around an Inkscape XML layer object plus some helper data for doing combination exports."""
 
-    def __init__(self, source: etree.Element):
+    def __init__(self, source: etree.Element, logit):
         self.source = source
         self.id = source.attrib["id"]
         label_attrib_name = LayerRef.get_layer_attrib_name(source)
@@ -188,7 +188,7 @@ class LayerRef(object):
         self.requested_hidden = False
         self.sibling_ids = list()
 
-        self.export_specs = ExportSpec.create_specs(self)
+        self.export_specs = ExportSpec.create_specs(self, logit)
 
     @staticmethod
     def get_layer_attrib_name(layer: etree.Element) -> str:
@@ -344,7 +344,7 @@ class ComboExport(inkex.Effect):
             label_attrib_name = LayerRef.get_layer_attrib_name(layer)
             if label_attrib_name not in layer.attrib:
                 continue
-            layers.append(LayerRef(layer))
+            layers.append(LayerRef(layer, logit))
 
         # Create the layer hierarchy (children and parents).
         for layer in layers:
@@ -441,7 +441,7 @@ class ExportSpec(object):
         self.status = status
 
     @staticmethod
-    def create_specs(layer) -> list:
+    def create_specs(layer, logit) -> list:
         """Extracts '[finger],[status]' pairs from the layer's ATTR_ID attribute and returns them as a 
            list of ExportSpec. A RuntimeError is raised if any are incorrectly formatted. 
         """
