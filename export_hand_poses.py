@@ -219,7 +219,7 @@ class ComboExport(inkex.Effect):
         self.arg_parser.add_argument("--dry", type=inkex.Boolean, dest="dry", default=False, help="Don't actually do all of the exports")
 
     def get_exported_layers(self, logit) :
-        layers = self.get_layers()
+        layers = self.get_layers(logit)
         exported_layers=dict()
         # Figure out the groups of permutations.
         for layer in layers:
@@ -335,7 +335,7 @@ class ComboExport(inkex.Effect):
                     logit(f"Writing PNG to final location {layer_dest_png_path}")
                     self.export_to_png(layer_dest_svg_path, layer_dest_png_path)
                     
-    def get_layers(self) -> list:
+    def get_layers(self, logit) -> list:
         svg_layers = self.document.xpath('//svg:g[@inkscape:groupmode="layer"]', namespaces=inkex.NSS)
         layers = []
 
